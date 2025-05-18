@@ -3,14 +3,15 @@ import os
 
 DB_PATH = r"C:\\Users\\krem_\\OneDrive\\Desktop\\Bitirme Projesi\\attendance.db"
 
-# Mevcut veritabanı varsa sil
+# Delete existing database if it exists (for fresh setup)
 if os.path.exists(DB_PATH):
     os.remove(DB_PATH)
 
+# Connect to the SQLite database (it will be created if not exists)
 conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
 
-# Öğrenci tablosu - sınıf, numara, soyisim eklendi
+# Create 'students' table: holds student info
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS students (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,7 +22,7 @@ CREATE TABLE IF NOT EXISTS students (
 )
 """)
 
-# Yoklama kayıt tablosu
+# Create 'attendance_logs' table: holds attendance records
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS attendance_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,4 +36,4 @@ CREATE TABLE IF NOT EXISTS attendance_logs (
 
 conn.commit()
 conn.close()
-print("Veritabanı başarıyla oluşturuldu:", DB_PATH)
+print("Database successfully created:", DB_PATH)

@@ -6,14 +6,17 @@ import sqlite3
 import numpy as np
 from datetime import datetime
 
+# Paths for encodings and database
 ENCODING_DIR = r"C:\Users\krem_\OneDrive\Desktop\Bitirme Projesi\encodings"
 DB_PATH = r"C:\Users\krem_\OneDrive\Desktop\Bitirme Projesi\attendance.db"
-THRESHOLD = 0.5
+THRESHOLD = 0.5  # Face recognition distance threshold
 
 def warmup_camera(cam):
+    # Capture a few frames to allow the camera to adjust
     for _ in range(3): cam.read()
 
 def load_known_faces():
+    # Load all known face encodings and names from .pkl files
     known_faces = []
     known_names = []
     for filename in os.listdir(ENCODING_DIR):
@@ -26,6 +29,7 @@ def load_known_faces():
     return known_faces, known_names
 
 def mark_all_absent(known_names):
+    # Mark all students as 'absent' at the beginning
     today = datetime.now().strftime("%Y-%m-%d")
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -42,6 +46,7 @@ def mark_all_absent(known_names):
     conn.close()
 
 def save_attendance_to_db(name):
+    # Update attendance status to 'here' for recognized student
     today = datetime.now().strftime("%Y-%m-%d")
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -58,9 +63,10 @@ def save_attendance_to_db(name):
     conn.close()
 
 def main():
+    # Load known faces
     known_faces, known_names = load_known_faces()
     if not known_faces:
-        print("Yüz verisi bulunamadı.")
+        print("No face data found.")
         return
 
     mark_all_absent(known_names)
@@ -71,11 +77,11 @@ def main():
     video.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
     if not video.isOpened():
-        print("Kamera açılamadı.")
+        print("Could not open camera.")
         return
 
     warmup_camera(video)
-    print("Tanıma başladı. 'q' ile çıkabilirsin.")
+    print("Recognition started. Press 'q' to exit.")
 
     while True:
         ret, frame = video.read()
@@ -99,16 +105,16 @@ def main():
                     already_marked.add(name)
                 label = f"{name} ({min_distance:.2f})"
             else:
-                label = "Bilinmeyen"
+                label = "Unknown"
 
             label_shown = True
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
             cv2.putText(frame, label, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
         if not label_shown:
-            cv2.putText(frame, "Yüz aranıyor...", (30, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 100, 255), 2)
+            cv2.putText(frame, "Searching for face...", (30, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 100, 255), 2)
 
-        cv2.imshow("SmartAttend - Tanıma", frame)
+        cv2.imshow("SmartAttend - Recognition", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
