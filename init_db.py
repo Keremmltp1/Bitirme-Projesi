@@ -33,6 +33,16 @@ CREATE TABLE IF NOT EXISTS attendance_logs (
     FOREIGN KEY(student_id) REFERENCES students(id)
 )
 """)
+# Create 'teachers' table
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS teachers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL
+)
+""")
+
 
 conn.commit()
 conn.close()
